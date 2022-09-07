@@ -36,12 +36,12 @@ runs:
       with:
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
         branch: "${{ inputs.branch }}"
-    - run: cd ${{ inputs.workdir }} && cabal v2-sdist
+    - run: cd ${{ inputs.work-dir }} && cabal v2-sdist
       shell: bash
     - uses: haskell-actions/hackage-publish@v1
       with:
         # http://hackage.haskell.org/users/account-management
-        hackageToken: ${{ inputs.hackage-token }}
+        hackageToken: "${{ inputs.hackage-token }}"
         packagesPath: dist-newstyle/sdist
         #docsPath: ${{ runner.temp }}/docs
         publish: true
