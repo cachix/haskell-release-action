@@ -1,12 +1,15 @@
 name: 'Release Haskell Package'
 description: 'Bumps cabal version and publishes to Hackage'
 inputs:
+  hackage-token:
+    description: 'Hackage token secret'
+    required: true
   version: 
-    description: 'Who to greet'
+    description: 'Version that will be used for the release'
     required: true
     default: "${{ github.ref_name }}"
   work-dir:
-    description: 'Who to greet'
+    description: 'Where to find the cabal file'
     required: true
     default: "."
   branch:
@@ -34,10 +37,11 @@ runs:
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
         branch: "${{ inputs.branch }}"
     - run: cd ${{ inputs.workdir }} && cabal v2-sdist
+      shell: bash
     - uses: haskell-actions/hackage-publish@v1
       with:
         # http://hackage.haskell.org/users/account-management
-        hackageToken: ${{ secrets.HACKAGE_AUTH_TOKEN }}
+        hackageToken: ${{ inputs.hackage-token }}
         packagesPath: dist-newstyle/sdist
         #docsPath: ${{ runner.temp }}/docs
         publish: true

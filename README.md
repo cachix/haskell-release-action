@@ -3,7 +3,7 @@
 Based on a git tag:
 
 - Bump cabal file version
-- Upload to hackage
+- Upload to Hackage
 
 ## Example
 
@@ -22,4 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/haskell-release-action@v1
+        with:
+          - hackage-token: "${{ secrets.HACKAGE_AUTH_TOKEN }}"
 ```
