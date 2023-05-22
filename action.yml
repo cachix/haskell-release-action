@@ -53,20 +53,18 @@ runs:
         branch: "${{ inputs.branch }}"
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
 
-    - name: Re-tag the release
-      uses: actions/github-script@v6
+    - name: Tag the release
+      uses: mathieudutour/github-tag-action@v6
       with:
-        script: |
-          await github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: "refs/tags/${{ inputs.version }}",
-            sha: "${{ steps.release-commit.outputs.commit_hash }}"
-          });
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        commit_sha: "${{ steps.release-commit.outputs.commit_hash }}"
+        release_branches: "${{ inputs.branch }}"
+        default_bump: false
+        custom_tag: "${{ inputs.version }}"
 
     - name: Build the release tarball
-      run: cd ${{ inputs.work-dir }} && cabal v2-sdist
       shell: bash
+      run: cd ${{ inputs.work-dir }} && cabal v2-sdist
 
     - name: Publish to Hackage
       uses: haskell-actions/hackage-publish@v1
