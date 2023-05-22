@@ -51,7 +51,7 @@ runs:
       with:
         branch: "${{ inputs.branch }}"
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
-        tagging_message: "{{ inputs.version }}"
+        tagging_message: "${{ inputs.version }}"
 
     - name: Build a release tarball
       run: cd ${{ inputs.work-dir }} && cabal v2-sdist
