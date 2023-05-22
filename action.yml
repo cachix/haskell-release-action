@@ -54,9 +54,9 @@ runs:
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
 
     - name: Tag the release
-      uses: mathieudutour/github-tag-action@v6
+      uses: mathieudutour/github-tag-action@v6.1
       with:
-        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        github_token: "${{ github.token }}"
         commit_sha: "${{ steps.release-commit.outputs.commit_hash }}"
         release_branches: "${{ inputs.branch }}"
         default_bump: false
