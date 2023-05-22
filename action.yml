@@ -60,6 +60,7 @@ runs:
         commit_sha: "${{ steps.release-commit.outputs.commit_hash }}"
         release_branches: "${{ inputs.branch }}"
         default_bump: false
+        tag_prefix: ""
         custom_tag: "${{ inputs.version }}"
 
     - name: Build the release tarball
