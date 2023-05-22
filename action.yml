@@ -46,14 +46,25 @@ runs:
         set-value: "${{ steps.version.outputs.value }}"
         work-dir: "${{ inputs.work-dir }}"
 
-    - name: Commit and tag the release
+    - name: Commit the release
+      id: release-commit
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         branch: "${{ inputs.branch }}"
         commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
-        tagging_message: "${{ inputs.version }}"
 
-    - name: Build a release tarball
+    - name: Re-tag the release
+      uses: actions/github-script@v6
+      with:
+        script: |
+          await github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "tags/${{ inputs.version }}",
+            sha: "${{ steps.release-commit.outputs.commit_hash }}"
+          });
+
+    - name: Build the release tarball
       run: cd ${{ inputs.work-dir }} && cabal v2-sdist
       shell: bash
 
