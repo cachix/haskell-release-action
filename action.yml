@@ -36,7 +36,7 @@ runs:
           await github.rest.git.deleteRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: "${{ inputs.version }}",
+            ref: "tags/${{ inputs.version }}",
           });
 
     - name: Bump the Cabal version
