@@ -60,7 +60,7 @@ runs:
           await github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: "tags/${{ inputs.version }}",
+            ref: "refs/tags/${{ inputs.version }}",
             sha: "${{ steps.release-commit.outputs.commit_hash }}"
           });
 
