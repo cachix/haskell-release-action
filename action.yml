@@ -4,7 +4,7 @@ inputs:
   hackage-token:
     description: 'Hackage token secret'
     required: true
-  version: 
+  version:
     description: 'Version that will be used for the release'
     required: true
     default: "${{ github.ref_name }}"
@@ -20,25 +20,55 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v3
-    - name: Clean version
+
+    - name: Extract the version number
       uses: mad9000/actions-find-and-replace-string@1
       id: version
       with:
         source: "${{ inputs.version }}"
         find: 'v'
         replace: ''
-    - uses: nikita-volkov/edit-cabal-version.github-action@v1.1.0
+
+    - name: Remove the existing tag
+      uses: actions/github-script@v6
+      with:
+        script: |
+          await github.rest.git.deleteRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "tags/${{ inputs.version }}",
+          });
+
+    - name: Bump the Cabal version
+      uses: nikita-volkov/edit-cabal-version.github-action@v1.1.0
       with:
         mode: set
         set-value: "${{ steps.version.outputs.value }}"
         work-dir: "${{ inputs.work-dir }}"
-    - uses: stefanzweifel/git-auto-commit-action@v4
+
+    - name: Commit the release
+      id: release-commit
+      uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
         branch: "${{ inputs.branch }}"
-    - run: cd ${{ inputs.work-dir }} && cabal v2-sdist
+        commit_message: "Bumping .cabal to ${{ steps.version.outputs.value  }}"
+
+    - name: Tag the release
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: "${{ github.token }}"
+        commit_sha: "${{ steps.release-commit.outputs.commit_hash }}"
+        release_branches: "${{ inputs.branch }}"
+        default_bump: false
+        tag_prefix: ""
+        custom_tag: "${{ inputs.version }}"
+
+    - name: Build the release tarball
       shell: bash
-    - uses: haskell-actions/hackage-publish@v1
+      run: cd ${{ inputs.work-dir }} && cabal v2-sdist
+
+    - name: Publish to Hackage
+      uses: haskell-actions/hackage-publish@v1
       with:
         # http://hackage.haskell.org/users/account-management
         hackageToken: "${{ inputs.hackage-token }}"
